@@ -116,18 +116,19 @@ const updateContact = async (req, res) => {
             });
         }
 
-        const contact = await Contact.findById(contactId);
+        const contactExist = await Contact.findById(contactId);
 
         // Check if contact exists
-        if (!contact) {
+        if (!contactExist) {
             return res.status(404).json({
                 success: false,
                 message: "Contact not found."
+
             });
         }
 
         // Check if the requesting user is authorized to update this contact
-        if (contact.userId != userId) {
+        if (contactExist.userId != userId) {
             return res.status(403).json({
                 success: false,
                 message: "Unauthorized to update this contact."
@@ -135,16 +136,17 @@ const updateContact = async (req, res) => {
         }
 
         // Update the contact
-        await Contact.findByIdAndUpdate(contactId, {
+        const updatedContact = await Contact.findByIdAndUpdate(contactId, {
             name,
             email,
             phone,
             address
-        });
+        },{new:true});
 
         res.status(200).json({
             success: true,
-            message: "Contact updated successfully."
+            message: "Contact updated successfully.",
+            contact:updatedContact
         });
 
     } catch (error) {
